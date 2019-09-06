@@ -14,6 +14,10 @@ SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 # The Target Build
 all: $(TARGET) $(SO_TARGET) tests
 
+%.o: %.c
+	rc -c cc $(CFLAGS) -c $^  $(LIBS) -o $@
+	cc -c $(CFLAGS) -c $^  $(LIBS) -o $@
+
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
 dev: all
 
