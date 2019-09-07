@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <string.h>
 
-#ifndef NDEBUG
+#ifdef NDEBUG
 #define debug(M, ...)
 #else
 #define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: [__func__] " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
