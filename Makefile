@@ -1,5 +1,8 @@
+LIB_SUFFIX=mylibname
+LD_PATH=$(LD_LIBRARY_PATH):./build
 CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
+TESTS_LIB_FLAGS=-Lbuild -l$(LIB_SUFFIX)
 PREFIX?=/usr/local
 
 SOURCES=$(wildcard src/**/*.c src/*.c)
@@ -8,15 +11,15 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
-TARGET=build/libYOUR_LIBRARY.a
+TARGET=build/lib$(LIB_SUFFIX).a
 SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 
 # The Target Build
 all: $(TARGET) $(SO_TARGET) tests
 
 %tests: %tests.c
-	rc -c cc $(CFLAGS)  $^ $(LIBS) -o $@
-	cc $(CFLAGS) $^ $(LIBS) -o $@
+	rc -c cc $(CFLAGS)  $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
+	cc $(CFLAGS) $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
 
 %.o: %.c
 	rc -c cc $(CFLAGS) -c $^  $(LIBS) -o $@
@@ -39,9 +42,10 @@ build:
 
 # The Unit Tests
 .PHONY: tests
-tests: CFLAGS += $(TARGET)
 tests: $(TESTS)
-	sh ./tests/runtests.sh
+	@echo echo LD_LIBRARY_PATH:
+	@echo $(LD_PATH)
+	LD_LIBRARY_PATH=$(LD_PATH) sh ./tests/runtests.sh
 
 valgrind:
 	VALGRIND="valgrind --log-file=/tmp/valgrind-%p.log" $(MAKE)
