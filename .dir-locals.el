@@ -1,4 +1,5 @@
 (
- (nil
-  (company-clang-arguments  .
-                            ("-I../src" "-I."))))
+ (c-mode
+  (eval .
+        (setq-local company-clang-arguments (list (format "-I%s" (nth 0 (projectile-expand-paths '("src"))))))
+        )))
