@@ -11,13 +11,20 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
+PROGRAMS_SRC=$(wildcard bin/*.c)
+PROGRAMS=$(patsubst %.c,%,$(PROGRAMS_SRC))
+
 TARGET=build/lib$(LIB_SUFFIX).a
 SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 
 # The Target Build
-all: $(TARGET) $(SO_TARGET) tests
+all: $(TARGET) $(SO_TARGET) tests $(PROGRAMS)
 
 %tests: %tests.c
+	rc -c cc $(CFLAGS)  $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
+	cc $(CFLAGS) $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
+
+%main: %main.c
 	rc -c cc $(CFLAGS)  $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
 	cc $(CFLAGS) $^ $(TESTS_LIB_FLAGS) $(LIBS) -o $@
 
@@ -52,7 +59,7 @@ valgrind:
 
 # The Cleaner
 clean:
-	rm -rf build $(OBJECTS) $(TESTS)
+	rm -rf build $(OBJECTS) $(TESTS) $(PROGRAMS)
 	rm -f tests/tests.log
 	rm -f tests/*tests
 	find . -name "*.gc*" -exec rm {} \;
